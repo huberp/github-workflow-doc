@@ -1,0 +1,28 @@
+# @workflow.name: Release
+# @workflow.description: Creates a new release and publishes artifacts
+# @workflow.owners: team-release
+# @workflow.tags: release, deployment
+# @workflow.permissions: write releases, read repository contents
+# @workflow.requirements: Release tag must follow semver format
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # @job.description: Build release artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        # @step.description: Checkout the tagged release code
+      
+      - name: Build
+        run: go build -o bin/workflowdocgen ./cmd/workflowdocgen
+        # @step.description: Build the binary
