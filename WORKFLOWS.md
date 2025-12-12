@@ -4,24 +4,21 @@ This document provides an overview of all GitHub workflows in this repository.
 
 | Workflow | Description | Owners | Tags | File |
 |----------|-------------|--------|------|------|
-| CI Build and Test | Runs continuous integration tests on all pull requests | team-release | ci, testing, automation | ci.yml |
-| Release | Creates a new release and publishes artifacts | team-release | release, deployment | release.yml |
+| CI | Run linting, tests, and multi-platform builds on push/PR | - | - | ci.yml |
+| Go Dependency Submission | Submit Go module dependencies to GitHub's dependency graph for security analysis | - | - | go-dependency-submission.yml |
+| Release | Build and publish releases with multi-platform binaries using GoReleaser | - | - | release.yml |
 
 ## Detailed Workflow Information
 
-### CI Build and Test
+### CI
 
-**Parameters:** branch name, commit SHA
+**Permissions:** contents:read
 
-**Results:** test results, coverage report
+### Go Dependency Submission
 
-**Permissions:** read repository contents, write test results
-
-**Requirements:** GitHub Actions enabled, test dependencies installed
+**Permissions:** contents:write
 
 ### Release
 
-**Permissions:** write releases, read repository contents
-
-**Requirements:** Release tag must follow semver format
+**Permissions:** contents:write
 

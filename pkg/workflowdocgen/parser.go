@@ -37,21 +37,21 @@ func ParseWorkflowFile(filePath string) (*WorkflowDoc, error) {
 
 	// Regex pattern to match documentation comments: # @workflow.field: value
 	workflowPattern := regexp.MustCompile(`^#\s*@workflow\.([a-z]+):\s*(.*)$`)
-	
+
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		
+
 		// Only process lines starting with # @
 		if !strings.HasPrefix(strings.TrimSpace(line), "# @") {
 			continue
 		}
-		
+
 		matches := workflowPattern.FindStringSubmatch(line)
 		if len(matches) == 3 {
 			field := matches[1]
 			value := strings.TrimSpace(matches[2])
-			
+
 			switch field {
 			case "name":
 				doc.Name = value
@@ -89,12 +89,12 @@ func ParseWorkflowsDirectory(dirPath string) ([]*WorkflowDoc, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	yamlFiles, err := filepath.Glob(filepath.Join(dirPath, "*.yaml"))
 	if err != nil {
 		return nil, err
 	}
-	
+
 	files = append(files, yamlFiles...)
 
 	for _, file := range files {

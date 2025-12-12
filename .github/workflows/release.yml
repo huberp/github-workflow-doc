@@ -1,9 +1,8 @@
 # @workflow.name: Release
-# @workflow.description: Creates a new release and publishes artifacts
-# @workflow.owners: team-release
-# @workflow.tags: release, deployment
-# @workflow.permissions: write releases, read repository contents
-# @workflow.requirements: Release tag must follow semver format
+# @workflow.description: Build and publish releases with multi-platform binaries using GoReleaser
+# @workflow.triggers: push of version tags (v*)
+# @workflow.permissions: contents:write
+# @workflow.outputs: GitHub release with multi-platform binaries, changelog
 
 name: Release
 
@@ -13,16 +12,37 @@ on:
       - 'v*'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  build:
-    # @job.description: Build release artifacts
+  release:
+    # @job.description: Build and publish release with multi-platform binaries
+    name: Release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-        # @step.description: Checkout the tagged release code
-      
-      - name: Build
-        run: go build -o bin/workflowdocgen ./cmd/workflowdocgen
-        # @step.description: Build the binary
+    - name: Checkout code
+      uses: actions/checkout@v6
+      with:
+        # GoReleaser needs full git history for version tags and changelog
+        fetch-depth: 0
+      # @step.description: Checkout code with full history
+
+    - name: Set up Go
+      uses: actions/setup-go@v6
+      with:
+        go-version-file: 'go.mod'
+      # @step.description: Install Go toolchain from go.mod version
+
+    - name: Run tests
+      run: ./scripts/test.sh
+      # @step.description: Execute tests before release
+
+    - name: Run GoReleaser
+      uses: goreleaser/goreleaser-action@v6
+      with:
+        distribution: goreleaser
+        version: '~> v2'
+        args: release --clean
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # @step.description: Build and publish release with GoReleaser

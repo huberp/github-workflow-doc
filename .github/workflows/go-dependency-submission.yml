@@ -1,0 +1,38 @@
+# @workflow.name: Go Dependency Submission
+# @workflow.description: Submit Go module dependencies to GitHub's dependency graph for security analysis
+# @workflow.triggers: push to main when go.mod changes
+# @workflow.permissions: contents:write
+# @workflow.outputs: Dependency graph submission to GitHub
+
+name: Go Dependency Submission
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'go.mod'
+
+permissions:
+  contents: write
+
+jobs:
+  go-dependency-submission:
+    # @job.description: Submit Go dependencies to GitHub dependency graph
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        # @step.description: Checkout the repository code
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: 'go.mod'
+        # @step.description: Install Go toolchain from go.mod version
+
+      - name: Run snapshot action
+        uses: actions/go-dependency-submission@v2
+        with:
+          go-mod-path: go.mod
+        # @step.description: Submit dependencies to GitHub dependency graph
