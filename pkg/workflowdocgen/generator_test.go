@@ -34,7 +34,7 @@ func TestGenerateMarkdownTable(t *testing.T) {
 			t.Fatalf("GenerateMarkdownTable failed: %v", err)
 		}
 
-		content, err := os.ReadFile(outputPath)
+		content, err := os.ReadFile(outputPath) // #nosec G304 - test file in temp directory
 		if err != nil {
 			t.Fatalf("Failed to read output file: %v", err)
 		}
@@ -88,7 +88,7 @@ func TestGenerateMarkdownTable(t *testing.T) {
 			t.Fatalf("GenerateMarkdownTable failed: %v", err)
 		}
 
-		content, err := os.ReadFile(outputPath)
+		content, err := os.ReadFile(outputPath) // #nosec G304 - test file in temp directory
 		if err != nil {
 			t.Fatalf("Failed to read output file: %v", err)
 		}
@@ -125,7 +125,7 @@ func TestGenerateMarkdownTable(t *testing.T) {
 			t.Fatalf("GenerateMarkdownTable failed: %v", err)
 		}
 
-		content, err := os.ReadFile(outputPath)
+		content, err := os.ReadFile(outputPath) // #nosec G304 - test file in temp directory
 		if err != nil {
 			t.Fatalf("Failed to read output file: %v", err)
 		}
@@ -179,7 +179,7 @@ func TestGenerateMarkdownTable(t *testing.T) {
 			t.Fatalf("GenerateMarkdownTable failed: %v", err)
 		}
 
-		content, err := os.ReadFile(outputPath)
+		content, err := os.ReadFile(outputPath) // #nosec G304 - test file in temp directory
 		if err != nil {
 			t.Fatalf("Failed to read output file: %v", err)
 		}
@@ -210,7 +210,7 @@ func TestGenerateMarkdownTable(t *testing.T) {
 			t.Fatalf("GenerateMarkdownTable failed: %v", err)
 		}
 
-		content, err := os.ReadFile(outputPath)
+		content, err := os.ReadFile(outputPath) // #nosec G304 - test file in temp directory
 		if err != nil {
 			t.Fatalf("Failed to read output file: %v", err)
 		}
@@ -233,7 +233,7 @@ func TestGenerateMarkdownTable(t *testing.T) {
 			t.Fatalf("GenerateMarkdownTable failed: %v", err)
 		}
 
-		content, err := os.ReadFile(outputPath)
+		content, err := os.ReadFile(outputPath) // #nosec G304 - test file in temp directory
 		if err != nil {
 			t.Fatalf("Failed to read output file: %v", err)
 		}
@@ -263,7 +263,7 @@ func TestGenerateMarkdownTable(t *testing.T) {
 			t.Fatalf("GenerateMarkdownTable failed: %v", err)
 		}
 
-		content, err := os.ReadFile(outputPath)
+		content, err := os.ReadFile(outputPath) // #nosec G304 - test file in temp directory
 		if err != nil {
 			t.Fatalf("Failed to read output file: %v", err)
 		}
@@ -327,7 +327,7 @@ func TestGenerateMarkdownTable(t *testing.T) {
 			t.Fatalf("GenerateMarkdownTable failed: %v", err)
 		}
 
-		content, err := os.ReadFile(outputPath)
+		content, err := os.ReadFile(outputPath) // #nosec G304 - test file in temp directory
 		if err != nil {
 			t.Fatalf("Failed to read output file: %v", err)
 		}

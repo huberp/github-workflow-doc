@@ -269,7 +269,7 @@ name: Deploy`,
 
 	t.Run("empty directory", func(t *testing.T) {
 		emptyDir := filepath.Join(tempDir, "empty")
-		if err := os.MkdirAll(emptyDir, 0755); err != nil {
+		if err := os.MkdirAll(emptyDir, 0750); err != nil { // #nosec G301 - test directory
 			t.Fatalf("Failed to create empty directory: %v", err)
 		}
 
@@ -285,7 +285,7 @@ name: Deploy`,
 
 	t.Run("directory with non-workflow files", func(t *testing.T) {
 		mixedDir := filepath.Join(tempDir, "mixed")
-		if err := os.MkdirAll(mixedDir, 0755); err != nil {
+		if err := os.MkdirAll(mixedDir, 0750); err != nil { // #nosec G301 - test directory
 			t.Fatalf("Failed to create mixed directory: %v", err)
 		}
 
@@ -293,9 +293,9 @@ name: Deploy`,
 		workflows := map[string]string{
 			"workflow.yml": `# @workflow.name: Valid
 name: Valid`,
-			"readme.md":  "# README",
-			"script.sh":  "#!/bin/bash",
-			"data.json":  "{}",
+			"readme.md": "# README",
+			"script.sh": "#!/bin/bash",
+			"data.json": "{}",
 		}
 
 		for name, content := range workflows {
