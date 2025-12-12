@@ -24,7 +24,7 @@ name: CI
 on: push
 `
 		filePath := filepath.Join(tempDir, "test1.yml")
-		if err := os.WriteFile(filePath, []byte(content), 0600); err != nil {
+		if err := os.WriteFile(filePath, []byte(content), 0600); err != nil { // #nosec G306 - test file
 			t.Fatalf("Failed to create test file: %v", err)
 		}
 
@@ -73,7 +73,7 @@ name: Test
 on: pull_request
 `
 		filePath := filepath.Join(tempDir, "test2.yml")
-		if err := os.WriteFile(filePath, []byte(content), 0600); err != nil {
+		if err := os.WriteFile(filePath, []byte(content), 0600); err != nil { // #nosec G306 - test file
 			t.Fatalf("Failed to create test file: %v", err)
 		}
 
@@ -104,7 +104,7 @@ jobs:
     runs-on: ubuntu-latest
 `
 		filePath := filepath.Join(tempDir, "test3.yml")
-		if err := os.WriteFile(filePath, []byte(content), 0600); err != nil {
+		if err := os.WriteFile(filePath, []byte(content), 0600); err != nil { // #nosec G306 - test file
 			t.Fatalf("Failed to create test file: %v", err)
 		}
 
@@ -130,7 +130,7 @@ jobs:
 name: Test
 `
 		filePath := filepath.Join(tempDir, "test4.yml")
-		if err := os.WriteFile(filePath, []byte(content), 0600); err != nil {
+		if err := os.WriteFile(filePath, []byte(content), 0600); err != nil { // #nosec G306 - test file
 			t.Fatalf("Failed to create test file: %v", err)
 		}
 
@@ -151,7 +151,7 @@ name: Test
 
 	t.Run("empty file", func(t *testing.T) {
 		filePath := filepath.Join(tempDir, "test5.yml")
-		if err := os.WriteFile(filePath, []byte(""), 0600); err != nil {
+		if err := os.WriteFile(filePath, []byte(""), 0600); err != nil { // #nosec G306 - test file
 			t.Fatalf("Failed to create test file: %v", err)
 		}
 
@@ -180,7 +180,7 @@ name: Test
 name: Test
 `
 		filePath := filepath.Join(tempDir, "test6.yml")
-		if err := os.WriteFile(filePath, []byte(content), 0600); err != nil {
+		if err := os.WriteFile(filePath, []byte(content), 0600); err != nil { // #nosec G306 - test file
 			t.Fatalf("Failed to create test file: %v", err)
 		}
 
@@ -205,7 +205,7 @@ name: Test
 name: Test
 `
 		filePath := filepath.Join(tempDir, "test7.yml")
-		if err := os.WriteFile(filePath, []byte(content), 0600); err != nil {
+		if err := os.WriteFile(filePath, []byte(content), 0600); err != nil { // #nosec G306 - test file
 			t.Fatalf("Failed to create test file: %v", err)
 		}
 
@@ -239,7 +239,7 @@ name: Deploy`,
 
 		for name, content := range files {
 			filePath := filepath.Join(tempDir, name)
-			if err := os.WriteFile(filePath, []byte(content), 0600); err != nil {
+			if err := os.WriteFile(filePath, []byte(content), 0600); err != nil { // #nosec G306 - test file
 				t.Fatalf("Failed to create test file %s: %v", name, err)
 			}
 		}
@@ -300,7 +300,7 @@ name: Valid`,
 
 		for name, content := range workflows {
 			filePath := filepath.Join(mixedDir, name)
-			if err := os.WriteFile(filePath, []byte(content), 0600); err != nil {
+			if err := os.WriteFile(filePath, []byte(content), 0600); err != nil { // #nosec G306 - test file
 				t.Fatalf("Failed to create file %s: %v", name, err)
 			}
 		}

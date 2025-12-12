@@ -13,14 +13,18 @@ if [ -f coverage.out ]; then
     
     # Check coverage threshold (70%)
     COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
-    THRESHOLD=70.0
+    THRESHOLD=70
+    
+    # Convert to integer by removing decimal point (e.g., 94.4 -> 944)
+    COVERAGE_INT=$(echo "$COVERAGE" | awk '{printf "%.0f", $1 * 10}')
+    THRESHOLD_INT=$((THRESHOLD * 10))
     
     echo ""
     echo "Total coverage: ${COVERAGE}%"
-    echo "Required threshold: ${THRESHOLD}%"
+    echo "Required threshold: ${THRESHOLD}.0%"
     
-    if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
-        echo "ERROR: Test coverage ${COVERAGE}% is below required threshold ${THRESHOLD}%"
+    if [ "$COVERAGE_INT" -lt "$THRESHOLD_INT" ]; then
+        echo "ERROR: Test coverage ${COVERAGE}% is below required threshold ${THRESHOLD}.0%"
         exit 1
     fi
     
