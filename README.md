@@ -1,5 +1,12 @@
 # github-workflow-doc
 
+[![CI](https://github.com/huberp/github-workflow-doc/actions/workflows/ci.yml/badge.svg)](https://github.com/huberp/github-workflow-doc/actions/workflows/ci.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/huberp/github-workflow-doc)](https://goreportcard.com/report/github.com/huberp/github-workflow-doc)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/huberp/github-workflow-doc)](https://github.com/huberp/github-workflow-doc/blob/main/go.mod)
+[![codecov](https://codecov.io/gh/huberp/github-workflow-doc/branch/main/graph/badge.svg)](https://codecov.io/gh/huberp/github-workflow-doc)
+[![License](https://img.shields.io/github/license/huberp/github-workflow-doc)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/huberp/github-workflow-doc)](https://github.com/huberp/github-workflow-doc/releases)
+
 A Go CLI tool that helps to document your GitHub workflows based on "javadoc" like comments.
 
 ## Overview
