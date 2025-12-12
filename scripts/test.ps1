@@ -4,21 +4,43 @@
 $ErrorActionPreference = "Stop"
 
 Write-Host "Running Go tests..." -ForegroundColor Green
-try {
-    go test -v -race "-coverprofile=coverage.out" "-covermode=atomic" -coverpkg=./pkg/... ./pkg/...
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "Note: No test files found in pkg/... (expected for this project)" -ForegroundColor Yellow
-    }
-} catch {
-    Write-Host "Note: No test files found in pkg/... (expected for this project)" -ForegroundColor Yellow
+go test -v -race "-coverprofile=coverage.out" "-covermode=atomic" -coverpkg=./pkg/... ./pkg/...
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Tests failed!"
+    exit 1
 }
 
 Write-Host ""
 Write-Host "Coverage report:" -ForegroundColor Green
 if (Test-Path coverage.out) {
     go tool cover -func coverage.out
+    
+    # Check coverage threshold (70%)
+    $coverageOutput = go tool cover -func coverage.out | Select-String "total"
+    $coverageMatch = $coverageOutput -match '(\d+\.\d+)%'
+    
+    if ($coverageMatch) {
+        $coverage = [double]$matches[1]
+        $threshold = 70.0
+        
+        Write-Host ""
+        Write-Host "Total coverage: ${coverage}%" -ForegroundColor Cyan
+        Write-Host "Required threshold: ${threshold}%" -ForegroundColor Cyan
+        
+        if ($coverage -lt $threshold) {
+            Write-Error "Test coverage ${coverage}% is below required threshold ${threshold}%"
+            exit 1
+        }
+        
+        Write-Host "✓ Coverage check passed!" -ForegroundColor Green
+    } else {
+        Write-Error "Could not parse coverage percentage"
+        exit 1
+    }
 } else {
-    Write-Host "No coverage data available (no tests found)" -ForegroundColor Yellow
+    Write-Error "No coverage data available"
+    exit 1
 }
 
 Write-Host ""

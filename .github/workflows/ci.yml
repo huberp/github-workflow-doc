@@ -1,5 +1,5 @@
 # @workflow.name: CI
-# @workflow.description: Run linting, tests, and multi-platform builds on push/PR
+# @workflow.description: Run linting, tests, and multi-platform builds on push/PR. Enforces 70% test coverage quality gate.
 # @workflow.triggers: push to main (Go files, go.mod, go.sum, workflow/script changes), pull requests to main
 # @workflow.permissions: contents:read
 # @workflow.outputs: Build artifacts uploaded as binaries, test coverage uploaded to Codecov
@@ -46,13 +46,13 @@ jobs:
     - name: Run tests (Linux)
       if: runner.os == 'Linux'
       run: ./scripts/test.sh
-      # @step.description: Execute tests on Linux
+      # @step.description: Execute tests on Linux with 70% coverage quality gate
 
     - name: Run tests (Windows)
       if: runner.os == 'Windows'
       run: ./scripts/test.ps1
       shell: pwsh
-      # @step.description: Execute tests on Windows
+      # @step.description: Execute tests on Windows with 70% coverage quality gate
 
     - name: Upload coverage to Codecov
       if: runner.os == 'Linux'
