@@ -4,16 +4,30 @@
 set -e
 
 echo "Running Go tests..."
-if ! go test -v -race -coverprofile=coverage.out -covermode=atomic -coverpkg=./pkg/... ./pkg/... 2>&1; then
-    echo "Note: No test files found in pkg/... (expected for this project)"
-fi
+go test -v -race -coverprofile=coverage.out -covermode=atomic -coverpkg=./pkg/... ./pkg/...
 
 echo ""
 echo "Coverage report:"
 if [ -f coverage.out ]; then
     go tool cover -func=coverage.out
+    
+    # Check coverage threshold (70%)
+    COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+    THRESHOLD=70.0
+    
+    echo ""
+    echo "Total coverage: ${COVERAGE}%"
+    echo "Required threshold: ${THRESHOLD}%"
+    
+    if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
+        echo "ERROR: Test coverage ${COVERAGE}% is below required threshold ${THRESHOLD}%"
+        exit 1
+    fi
+    
+    echo "✓ Coverage check passed!"
 else
-    echo "No coverage data available (no tests found)"
+    echo "ERROR: No coverage data available"
+    exit 1
 fi
 
 echo ""
