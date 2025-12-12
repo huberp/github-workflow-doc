@@ -2,6 +2,8 @@ package workflowdocgen
 
 import (
 	"bufio"
+	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -24,7 +26,10 @@ type WorkflowDoc struct {
 
 // ParseWorkflowFile parses a workflow YAML file and extracts documentation comments
 func ParseWorkflowFile(filePath string) (doc *WorkflowDoc, err error) {
-	file, ferr := os.Open(filePath) // #nosec G304 - filePath is validated by caller
+	// Validate and clean the file path to prevent directory traversal
+	cleanPath := filepath.Clean(filePath)
+
+	file, ferr := os.Open(cleanPath)
 	if ferr != nil {
 		return nil, ferr
 	}
@@ -39,8 +44,10 @@ func ParseWorkflowFile(filePath string) (doc *WorkflowDoc, err error) {
 		FileName: filepath.Base(filePath),
 	}
 
-	// Regex pattern to match documentation comments: # @workflow.field: value
+	// Regex patterns to match documentation comments
 	workflowPattern := regexp.MustCompile(`^#\s*@workflow\.([a-z]+):\s*(.*)$`)
+	jobPattern := regexp.MustCompile(`^#\s*@job\.([a-z]+):\s*(.*)$`)
+	stepPattern := regexp.MustCompile(`^#\s*@step\.([a-z]+):\s*(.*)$`)
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -51,6 +58,7 @@ func ParseWorkflowFile(filePath string) (doc *WorkflowDoc, err error) {
 			continue
 		}
 
+		// Try to match workflow pattern
 		matches := workflowPattern.FindStringSubmatch(line)
 		if len(matches) == 3 {
 			field := matches[1]
@@ -74,6 +82,23 @@ func ParseWorkflowFile(filePath string) (doc *WorkflowDoc, err error) {
 			case "requirements":
 				doc.Requirements = value
 			}
+			continue
+		}
+
+		// Try to match job pattern (for future expansion)
+		jobMatches := jobPattern.FindStringSubmatch(line)
+		if len(jobMatches) == 3 {
+			// Job-level documentation - not yet stored in WorkflowDoc
+			// This is parsed for validation but not currently used
+			continue
+		}
+
+		// Try to match step pattern (for future expansion)
+		stepMatches := stepPattern.FindStringSubmatch(line)
+		if len(stepMatches) == 3 {
+			// Step-level documentation - not yet stored in WorkflowDoc
+			// This is parsed for validation but not currently used
+			continue
 		}
 	}
 
@@ -88,13 +113,16 @@ func ParseWorkflowFile(filePath string) (doc *WorkflowDoc, err error) {
 func ParseWorkflowsDirectory(dirPath string) ([]*WorkflowDoc, error) {
 	var docs []*WorkflowDoc
 
+	// Clean and validate the directory path
+	cleanDirPath := filepath.Clean(dirPath)
+
 	// Find all YAML files in the directory
-	files, err := filepath.Glob(filepath.Join(dirPath, "*.yml"))
+	files, err := filepath.Glob(filepath.Join(cleanDirPath, "*.yml"))
 	if err != nil {
 		return nil, err
 	}
 
-	yamlFiles, err := filepath.Glob(filepath.Join(dirPath, "*.yaml"))
+	yamlFiles, err := filepath.Glob(filepath.Join(cleanDirPath, "*.yaml"))
 	if err != nil {
 		return nil, err
 	}
@@ -102,13 +130,48 @@ func ParseWorkflowsDirectory(dirPath string) ([]*WorkflowDoc, error) {
 	files = append(files, yamlFiles...)
 
 	for _, file := range files {
+		// Check if file is a symlink and skip it
+		fileInfo, err := os.Lstat(file)
+		if err != nil {
+			slog.Warn("Failed to stat file", "file", file, "error", err)
+			continue
+		}
+
+		if fileInfo.Mode()&os.ModeSymlink != 0 {
+			slog.Warn("Skipping symlink", "file", file)
+			continue
+		}
+
 		doc, err := ParseWorkflowFile(file)
 		if err != nil {
-			// Skip files that can't be parsed
+			slog.Warn("Failed to parse workflow file", "file", file, "error", err)
 			continue
 		}
 		docs = append(docs, doc)
 	}
 
 	return docs, nil
+}
+
+// escapeMarkdown escapes special markdown characters in table cells
+func escapeMarkdown(s string) string {
+	// Escape special characters that can break markdown tables
+	s = strings.ReplaceAll(s, "\\", "\\\\")
+	s = strings.ReplaceAll(s, "|", "\\|")
+	s = strings.ReplaceAll(s, "`", "\\`")
+	s = strings.ReplaceAll(s, "*", "\\*")
+	s = strings.ReplaceAll(s, "_", "\\_")
+	s = strings.ReplaceAll(s, "[", "\\[")
+	s = strings.ReplaceAll(s, "]", "\\]")
+	return s
+}
+
+// IsYAMLFile checks if a file is a valid YAML file
+func IsYAMLFile(filePath string) error {
+	// Basic validation: check file extension
+	ext := strings.ToLower(filepath.Ext(filePath))
+	if ext != ".yml" && ext != ".yaml" {
+		return fmt.Errorf("file %s is not a YAML file", filePath)
+	}
+	return nil
 }

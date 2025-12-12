@@ -132,7 +132,7 @@ func TestGenerateMarkdownTable(t *testing.T) {
 
 		output := string(content)
 
-		// Check for detailed section
+		// Check for detailed section (now always present)
 		if !strings.Contains(output, "## Detailed Workflow Information") {
 			t.Error("Expected '## Detailed Workflow Information' section")
 		}
@@ -166,7 +166,7 @@ func TestGenerateMarkdownTable(t *testing.T) {
 		docs := []*WorkflowDoc{
 			{
 				Name:        "Test | Workflow",
-				Description: "Uses | pipes",
+				Description: "Uses | pipes and *asterisks* and `backticks`",
 				Owners:      "team | ops",
 				Tags:        "tag1 | tag2",
 				FileName:    "test.yml",
@@ -186,12 +186,12 @@ func TestGenerateMarkdownTable(t *testing.T) {
 
 		output := string(content)
 
-		// Check that pipes are escaped
+		// Check that special characters are escaped
 		if !strings.Contains(output, "Test \\| Workflow") {
 			t.Error("Expected escaped pipe in name")
 		}
-		if !strings.Contains(output, "Uses \\| pipes") {
-			t.Error("Expected escaped pipe in description")
+		if !strings.Contains(output, "Uses \\| pipes and \\*asterisks\\* and \\`backticks\\`") {
+			t.Error("Expected escaped special characters in description")
 		}
 		if !strings.Contains(output, "team \\| ops") {
 			t.Error("Expected escaped pipe in owners")
@@ -224,6 +224,13 @@ func TestGenerateMarkdownTable(t *testing.T) {
 		if !strings.Contains(output, "| Workflow | Description | Owners | Tags | File |") {
 			t.Error("Expected table header even with no workflows")
 		}
+		// Should have detailed section with message
+		if !strings.Contains(output, "## Detailed Workflow Information") {
+			t.Error("Expected detailed section even with no workflows")
+		}
+		if !strings.Contains(output, "_No workflows have extended metadata configured._") {
+			t.Error("Expected 'no metadata' message")
+		}
 	})
 
 	t.Run("nil workflow list", func(t *testing.T) {
@@ -243,6 +250,10 @@ func TestGenerateMarkdownTable(t *testing.T) {
 		// Should still generate valid markdown
 		if !strings.Contains(output, "# Workflow Documentation") {
 			t.Error("Expected header even with nil workflows")
+		}
+		// Should have detailed section with message
+		if !strings.Contains(output, "_No workflows have extended metadata configured._") {
+			t.Error("Expected 'no metadata' message")
 		}
 	})
 
@@ -270,7 +281,7 @@ func TestGenerateMarkdownTable(t *testing.T) {
 
 		output := string(content)
 
-		// Should have detailed section
+		// Should have detailed section (always present now)
 		if !strings.Contains(output, "## Detailed Workflow Information") {
 			t.Error("Expected detailed section with partial metadata")
 		}
