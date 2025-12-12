@@ -95,5 +95,5 @@ func GenerateMarkdownTable(docs []*WorkflowDoc, outputPath string) error {
 	}
 
 	// Write to file
-	return os.WriteFile(outputPath, []byte(sb.String()), 0644)
+	return os.WriteFile(outputPath, []byte(sb.String()), 0600)
 }
