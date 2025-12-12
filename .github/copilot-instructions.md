@@ -69,6 +69,12 @@
 5. Build locally
 6. Commit
 
+## Copilot Agent Requirements
+- **ALWAYS** run linter before finishing/completing a PR
+- Linter command: `golangci-lint run --timeout=5m`
+- Fix all linter errors before marking work complete
+- Do not commit code with linter errors
+
 ## Version Management
 - Use semantic versioning
 - Tag releases with `v` prefix (v1.0.0)

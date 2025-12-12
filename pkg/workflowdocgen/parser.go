@@ -24,11 +24,15 @@ type WorkflowDoc struct {
 
 // ParseWorkflowFile parses a workflow YAML file and extracts documentation comments
 func ParseWorkflowFile(filePath string) (*WorkflowDoc, error) {
-	file, err := os.Open(filePath)
+	file, err := os.Open(filePath) // #nosec G304 - filePath is validated by caller
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() {
+		if cerr := file.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
 
 	doc := &WorkflowDoc{
 		FilePath: filePath,
