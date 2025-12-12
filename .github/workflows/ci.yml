@@ -1,0 +1,34 @@
+# @workflow.name: CI Build and Test
+# @workflow.description: Runs continuous integration tests on all pull requests
+# @workflow.owners: team-release
+# @workflow.tags: ci, testing, automation
+# @workflow.params: branch name, commit SHA
+# @workflow.results: test results, coverage report
+# @workflow.permissions: read repository contents, write test results
+# @workflow.requirements: GitHub Actions enabled, test dependencies installed
+
+name: CI Build and Test
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    # @job.description: Run unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        # @step.description: Checkout the repository code
+      
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23'
+        # @step.description: Install Go toolchain
+      
+      - name: Run tests
+        run: go test ./...
+        # @step.description: Execute all unit tests
