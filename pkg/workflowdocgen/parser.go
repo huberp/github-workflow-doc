@@ -3,7 +3,7 @@ package workflowdocgen
 import (
 	"bufio"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -133,18 +133,18 @@ func ParseWorkflowsDirectory(dirPath string) ([]*WorkflowDoc, error) {
 		// Check if file is a symlink and skip it
 		fileInfo, err := os.Lstat(file)
 		if err != nil {
-			log.Printf("Warning: Failed to stat %s: %v", file, err)
+			slog.Warn("Failed to stat file", "file", file, "error", err)
 			continue
 		}
 
 		if fileInfo.Mode()&os.ModeSymlink != 0 {
-			log.Printf("Warning: Skipping symlink %s", file)
+			slog.Warn("Skipping symlink", "file", file)
 			continue
 		}
 
 		doc, err := ParseWorkflowFile(file)
 		if err != nil {
-			log.Printf("Warning: Failed to parse %s: %v", file, err)
+			slog.Warn("Failed to parse workflow file", "file", file, "error", err)
 			continue
 		}
 		docs = append(docs, doc)
