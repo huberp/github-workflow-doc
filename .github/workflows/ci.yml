@@ -1,18 +1,22 @@
-# @workflow.name: CI Build and Test
-# @workflow.description: Runs continuous integration tests on all pull requests
-# @workflow.owners: team-release
-# @workflow.tags: ci, testing, automation
-# @workflow.params: branch name, commit SHA
-# @workflow.results: test results, coverage report
-# @workflow.permissions: read repository contents, write test results
-# @workflow.requirements: GitHub Actions enabled, test dependencies installed
+# @workflow.name: CI
+# @workflow.description: Run linting, tests, and multi-platform builds on push/PR
+# @workflow.triggers: push to main (Go files, go.mod, go.sum, workflow/script changes), pull requests to main
+# @workflow.permissions: contents:read
+# @workflow.outputs: Build artifacts uploaded as binaries, test coverage uploaded to Codecov
 
-name: CI Build and Test
+name: CI
 
 on:
-  pull_request:
-    branches: [ main ]
   push:
+    branches: [ main ]
+    paths:
+      - '**.go'
+      - 'go.mod'
+      - 'go.sum'
+      - '.github/workflows/ci.yml'
+      - 'scripts/test.sh'
+      - 'scripts/test.ps1'
+  pull_request:
     branches: [ main ]
 
 permissions:
@@ -20,18 +24,100 @@ permissions:
 
 jobs:
   test:
-    # @job.description: Run unit tests
-    runs-on: ubuntu-latest
+    # @job.description: Run unit tests on multiple platforms
+    name: Test
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v6
-        # @step.description: Checkout the repository code
-      
-      - name: Set up Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: '1.23'
-        # @step.description: Install Go toolchain
-      
-      - name: Run tests
-        run: go test ./...
-        # @step.description: Execute all unit tests
+    - name: Checkout code
+      uses: actions/checkout@v6
+      # @step.description: Checkout the repository code
+
+    - name: Set up Go
+      uses: actions/setup-go@v6
+      with:
+        go-version-file: 'go.mod'
+      # @step.description: Install Go toolchain from go.mod version
+
+    - name: Run tests (Linux)
+      if: runner.os == 'Linux'
+      run: ./scripts/test.sh
+      # @step.description: Execute tests on Linux
+
+    - name: Run tests (Windows)
+      if: runner.os == 'Windows'
+      run: ./scripts/test.ps1
+      shell: pwsh
+      # @step.description: Execute tests on Windows
+
+    - name: Upload coverage to Codecov
+      if: runner.os == 'Linux'
+      uses: codecov/codecov-action@v5
+      with:
+        files: ./coverage.out
+        flags: unittests
+      # @step.description: Upload test coverage to Codecov
+
+  lint:
+    # @job.description: Run linting checks
+    name: Lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+      # @step.description: Checkout the repository code
+
+    - name: Set up Go
+      uses: actions/setup-go@v6
+      with:
+        go-version-file: 'go.mod'
+      # @step.description: Install Go toolchain from go.mod version
+
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v9
+      with:
+        version: latest
+        args: --timeout=5m
+      # @step.description: Run golangci-lint with latest version
+
+  build:
+    # @job.description: Build multi-platform binaries
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [test, lint]
+    permissions:
+      contents: read
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+      with:
+        # GoReleaser needs full git history for version tags and changelog
+        fetch-depth: 0
+      # @step.description: Checkout code with full history
+
+    - name: Set up Go
+      uses: actions/setup-go@v6
+      with:
+        go-version-file: 'go.mod'
+      # @step.description: Install Go toolchain from go.mod version
+
+    - name: Run GoReleaser (snapshot)
+      uses: goreleaser/goreleaser-action@v6
+      with:
+        distribution: goreleaser
+        version: '~> v2'
+        args: build --snapshot --clean
+      # @step.description: Build multi-platform binaries without releasing
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v5
+      with:
+        name: binaries
+        path: dist/
+      # @step.description: Upload build artifacts
