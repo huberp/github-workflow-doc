@@ -37,7 +37,7 @@ try {
     }
 
     # Test 1: Help command
-    $HELP_OUTPUT = (& "$TEMP_DIR/workflowdocgen.exe" --help) -join "`n"
+    $HELP_OUTPUT = (& "$TEMP_DIR/workflowdocgen.exe" --help 2>&1) -join "`n"
     if ($HELP_OUTPUT -notmatch "output") {
         Write-Error "Help command test failed!"
         exit 1
