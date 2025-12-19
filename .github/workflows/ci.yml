@@ -116,7 +116,7 @@ jobs:
       # @step.description: Build multi-platform binaries without releasing
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: binaries
         path: dist/
